@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Imi.Project.Mobile.Pages.EventsPage"
+             xmlns:bhv="clr-namespace:Imi.Project.Mobile.Behaviors">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Events" FontSize="50" TextColor="#2b2828" HorizontalOptions="Center" Margin="0,25,0,15"></Label>
+            <ListView ItemsSource="{Binding Events}"
+                          HasUnevenRows="False" RowHeight="60" >
+                <ListView.Behaviors>
+                    <bhv:EventToCommandBehavior 
+                        EventName="ItemTapped"  
+                        Command="{Binding OpenEvent}"
+                        EventArgsConverter="{StaticResource ItemTappedEventArgsConv}" />
+                </ListView.Behaviors>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid Padding="5,10">
+
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="5*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Row="0" Grid.Column="0" Text="🎫" TextColor="#2b2828" HorizontalTextAlignment="Center" Padding="0,0,0,0" FontSize="Large" VerticalTextAlignment="Center"></Label>
+                                <Label Text="{Binding Name}" TextColor="#2b2828" Grid.Row="0" Grid.Column="1" FontSize="16"
+                                           VerticalOptions="Center" HorizontalOptions="Start" />
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

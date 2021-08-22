@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Imi.Project.Mobile.Pages.ChessBoardPage"
+             xmlns:local="clr-namespace:Imi.Project.Mobile.Pages"             
+             xmlns:inputLayout="clr-namespace:Syncfusion.XForms.TextInputLayout;assembly=Syncfusion.Core.XForms">
+
+    <ContentPage.Content>
+        <ScrollView>
+
+            <StackLayout Margin="20,0,20,0">
+                <Label Text="{Binding Game.Name}" FontSize="Large" HorizontalOptions="Center" TextColor="#2b2828" VerticalOptions="Center" Margin="0,5,0,0"></Label>
+                <local:ChessBoardView HorizontalOptions="Center">
+                </local:ChessBoardView>
+                <Grid>
+                    <Button Command="{Binding GoPreviousMove}" HorizontalOptions="Start" Text="Previous" WidthRequest="100">
+                    </Button>
+                    <Button Command="{Binding GoNextMove}" HorizontalOptions="End" Text="Next" WidthRequest="100">
+                    </Button>
+                </Grid>
+
+                <Button Text="Edit" HorizontalOptions="End" Command="{Binding ChangeEditAnnotation}" WidthRequest="100">
+                </Button>
+                <Label Margin="0,5,0,0" FontAttributes="Bold" TextColor="#2b2828" >
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Opening: "/>
+                            <Span Text="{Binding Opening.Name}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Label  Margin="0,5,0,0" FontAttributes="Bold" TextColor="#2b2828" >
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Turn: "/>
+                            <Span Text="{Binding GameTurn}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Label Text="Annotation:" IsVisible="{Binding LabelVisible}" Margin="0,5,0,0" FontAttributes="Bold" TextColor="#2b2828" ></Label>
+                <Label Text="{Binding Annotation}" IsVisible="{Binding LabelVisible}"  Margin="0,5,0,0" TextColor="#2b2828" ></Label>
+                <inputLayout:SfTextInputLayout IsVisible="{Binding TextAreaVisible}">
+                    <Editor x:Name="txtPgn" Text="{Binding Annotation}" AutoSize="TextChanges" HeightRequest="100" FontSize="Small" />
+                </inputLayout:SfTextInputLayout>
+                <Button  Command="{Binding PutAnnotation}" IsVisible="{Binding TextAreaVisible}" Text="Confirm" WidthRequest="100">
+                </Button>
+                <Button Command="{Binding DeleteGame}" Text="Delete">
+                </Button>
+            </StackLayout>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>

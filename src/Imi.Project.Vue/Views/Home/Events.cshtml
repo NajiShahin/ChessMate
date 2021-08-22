@@ -1,0 +1,110 @@
+﻿<div id="app">
+    <h2 class="m-2">Events</h2>
+    <button v-if="addEvent == true && claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] == 'Admin'" class="btn btn-info float-right" v-on:click="addEvent = !addEvent">See events</button>
+    <button v-if="addEvent == false && claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] == 'Admin'" class="btn btn-info float-right" v-on:click="addEvent = !addEvent">Add event</button>
+
+    <div v-if="addEvent">
+        <div class="col-sm-3 mt-3">
+            <h6 class="mb-0">Name</h6>
+        </div>
+        <div class="col-sm-9 text-secondary">
+            <input class="form-control" v-model="name" />
+        </div>
+        <div class="col-sm-3 mt-2">
+            <h6 class="mb-0">description</h6>
+        </div>
+        <div class="col-sm-9 text-secondary">
+            <input class="form-control" v-model="description" />
+        </div>
+        <div class="col-sm-3 mt-2">
+            <h6 class="mb-0">url</h6>
+        </div>
+        <div class="col-sm-9 text-secondary">
+            <input class="form-control" v-model="url" />
+        </div>
+        <div class="col-sm-3 mt-2">
+            <h6 class="mb-0">dateTimeOfEvent</h6>
+        </div>
+        <div class="col-sm-9 text-secondary">
+            <input class="form-control" type="date" v-model="dateTimeOfEvent" />
+        </div>
+        <button class="btn btn-danger mt-2" v-on:click="Cancel">Cancel</button>
+        <button class="btn btn-success mt-2" v-on:click="AddEvent">Confirm</button>
+    </div>
+    <div v-else id="app" class="row">
+        <div class="col-md-6">
+            <ul class="list-group">
+                <li class="list-group-item" v-for="event in info">
+                    <a class="nav-link" href="#" v-on:click="GoToEvent(event)">{{event.name}}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    var apiURL = 'https://localhost:5001/api/events';
+    var token = localStorage.chessMatePassword;
+    const axiosConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    };
+
+    var coindeskapp = new Vue({
+        el: "#app",
+        data: {
+            info: null,
+            claims: null,
+            addEvent: false,
+            name: "",
+            description: "",
+            url: "",
+            dateTimeOfEvent: null,
+        },
+        created:
+            function () {
+                if (localStorage.chessMatePassword == '') {
+                    location.href = '@Url.Action("login", "home")'
+                }
+                this.claims = parseJwt(localStorage.chessMatePassword)
+
+                axios
+                    .get(apiURL, axiosConfig)
+                    .then(response => (this.info = response.data))
+            },
+        methods: {
+            GoToEvent: function (event) {
+                location.href = `event/` + event.id
+            },
+            AddEvent: function () {
+                let eventToAdd = {
+                    name: this.name,
+                    url: this.url,
+                    dateTimeOfEvent: this.dateTimeOfEvent,
+                    description: this.description,
+                }
+                axios
+                    .post(apiURL, eventToAdd, axiosConfig)
+                    .then(response => (this.info.push(response.data)))
+                this.addEvent = !this.addEvent
+            },
+            Cancel: function () {
+                this.name= ""
+                this.description= ""
+                this.url= ""
+                this.dateTimeOfEvent= null
+                this.addEvent = !this.addEvent
+            }
+        }
+    });
+</script>

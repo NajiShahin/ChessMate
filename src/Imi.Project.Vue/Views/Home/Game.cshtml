@@ -1,0 +1,294 @@
+﻿<div id="app">
+    <h2 class="m-2">Game: {{game.name}}</h2>
+    <h5>Opening: {{game.openingName}}</h5>
+    <h5>Played as: {{game.playedAs}}</h5>
+    <h5>Result: {{game.outcome}}</h5>
+    <h5>Created at: {{game.dateAdded.substring(0,10)}}</h5>
+    <button class="btn btn-danger float-right" v-on:click="deleteGame">Delete</button>
+    <table class="chess-board">
+        <tbody>
+            <tr>
+                <th></th>
+                <th>a</th>
+                <th>b</th>
+                <th>c</th>
+                <th>d</th>
+                <th>e</th>
+                <th>f</th>
+                <th>g</th>
+                <th>h</th>
+            </tr>
+            <tr v-for="(line, index) in board">
+                <th>{{8 - index }}</th>
+                <td v-if="(index + 0)%2 == 0" class="light"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[0]" /> </td>
+                <td v-if="(index + 0)%2 != 0" class="dark"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[0]" /></td>
+                <td v-if="(index + 1)%2 != 0" class="dark"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[1]" /></td>
+                <td v-if="(index + 1)%2 == 0" class="light"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[1]" /></td>
+                <td v-if="(index + 2)%2 == 0" class="light"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[2]" /></td>
+                <td v-if="(index + 2)%2 != 0" class="dark"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[2]" /></td>
+                <td v-if="(index + 3)%2 != 0" class="dark"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[3]" /></td>
+                <td v-if="(index + 3)%2 == 0" class="light"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[3]" /></td>
+                <td v-if="(index + 4)%2 == 0" class="light"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[4]" /></td>
+                <td v-if="(index + 4)%2 != 0" class="dark"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[4]" /></td>
+                <td v-if="(index + 5)%2 != 0" class="dark"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[5]" /></td>
+                <td v-if="(index + 5)%2 == 0" class="light"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[5]" /></td>
+                <td v-if="(index + 6)%2 == 0" class="light"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[6]" /></td>
+                <td v-if="(index + 6)%2 != 0" class="dark"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[6]" /></td>
+                <td v-if="(index + 7)%2 != 0" class="dark"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[7]" /></td>
+                <td v-if="(index + 7)%2 == 0" class="light"><img v-bind:src="'/img/chesspieces/wikipedia/' + line[7]" /></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="mt-4 btn btn-info" v-on:click="Previous">Previous</button>
+    <button class="mt-4 ml-4 btn btn-info" v-on:click="Next">Next</button>
+
+    <div class="mt-4"  v-if="game.moves[turn - 1] !== undefined">
+        <b>Annotation:</b>
+        <button class="btn btn-info ml-4 mb-2" v-on:click="EditAnnotation">Edit</button><br />
+        <span v-if="IsEditAnnotation">
+            {{game.moves[turn - 1].annotation}}
+        </span>
+        <div v-else class="col-sm-9 text-secondary">
+            <input class="form-control" v-model="annotation" />
+            <button class="btn btn-danger mt-2" v-on:click="EditAnnotation">Cancel</button>
+            <button class="btn btn-success mt-2" v-on:click="SaveAnnotation">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var apiURL = 'https://localhost:5001/api/games/'
+    var token = localStorage.chessMatePassword;
+
+    const axiosConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    };
+
+    var coindeskapp = new Vue({
+        el: "#app",
+        data: {
+            game: null,
+            IsEditAnnotation: true,
+            annotation: null,
+            board: [
+                ['bR.png', 'bN.png', 'bB.png', 'bQ.png', 'bK.png', 'bB.png', 'bN.png', 'bR.png'],
+                ['bP.png', 'bP.png', 'bP.png', 'bP.png', 'bP.png', 'bP.png', 'bP.png', 'bP.png'],
+                ['empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png'],
+                ['empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png'],
+                ['empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png'],
+                ['empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png'],
+                ['wP.png', 'wP.png', 'wP.png', 'wP.png', 'wP.png', 'wP.png', 'wP.png', 'wP.png'],
+                ['wR.png', 'wN.png', 'wB.png', 'wQ.png', 'wK.png', 'wB.png', 'wN.png', 'wR.png'],
+            ],
+            turn: 0,
+        },
+        created:
+            function () {
+                if (localStorage.chessMatePassword == '') {
+                    location.href = '@Url.Action("login", "home")'
+                }
+                this.claims = parseJwt(localStorage.chessMatePassword)
+
+                axios
+                    .get(apiURL + '@ViewContext.RouteData.Values["id"]', axiosConfig)
+                    .then(response => (this.game = response.data))
+
+                //check if user is interested in this event
+                axios
+                    .get('https://localhost:5001/api/users/' + this.claims.id, axiosConfig)
+                    .then(response => (this.user = response.data))
+            },
+        methods: {
+            EditAnnotation: function () {
+                this.IsEditAnnotation = !this.IsEditAnnotation
+                this.annotation = this.game.moves[this.turn - 1].annotation
+            },
+            SaveAnnotation: function () {
+                this.game.moves[this.turn - 1].annotation = this.annotation
+                axios
+                    .put(apiURL + '@ViewContext.RouteData.Values["id"]/moves',this.game.moves, axiosConfig)
+                this.IsEditAnnotation = !this.IsEditAnnotation
+            },
+            deleteGame: function () {
+                axios
+                    .delete(apiURL + '@ViewContext.RouteData.Values["id"]', axiosConfig)
+                    .then(response => location.href = '@Url.Action("index", "home")')
+            },
+            Previous: function () {
+                let lowestTurn = Math.min.apply(Math, this.game.moves.map(a => a.turn))
+                if (lowestTurn <= this.turn) {
+                    this.turn -= 1
+                    this.makeMove()
+                    var audio = new Audio('/sounds/Move.wav')
+                    audio.play()
+                }
+            },
+            Next: function () {
+                let highestTurn = Math.max.apply(Math, this.game.moves.map(a => a.turn))
+                if (highestTurn > this.turn) {
+                    this.turn += 1
+                    this.makeMove()
+                    var audio = new Audio('/sounds/Move.wav')
+                    audio.play()
+                }
+            },
+            makeMove: function () {
+                this.board = [
+                    ['bR.png', 'bN.png', 'bB.png', 'bQ.png', 'bK.png', 'bB.png', 'bN.png', 'bR.png'],
+                    ['bP.png', 'bP.png', 'bP.png', 'bP.png', 'bP.png', 'bP.png', 'bP.png', 'bP.png'],
+                    ['empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png'],
+                    ['empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png'],
+                    ['empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png'],
+                    ['empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png', 'empty.png'],
+                    ['wP.png', 'wP.png', 'wP.png', 'wP.png', 'wP.png', 'wP.png', 'wP.png', 'wP.png'],
+                    ['wR.png', 'wN.png', 'wB.png', 'wQ.png', 'wK.png', 'wB.png', 'wN.png', 'wR.png'],
+                ]
+                for (var i = 0; i < this.turn; i++) {
+
+                    if (this.game.moves[i].movePath.toUpperCase().includes("O-O")) {
+                        if (i % 2 == 1) {
+                            if (this.game.moves[i].movePath.toUpperCase() == "O-O") {
+                                this.board[0][5] = 'bR.png'
+                                this.board[0][6] = 'bK.png'
+                                this.board[0][4] = 'empty.png'
+                                this.board[0][7] = 'empty.png'
+
+
+                            } else if (this.game.moves[i].movePath.toUpperCase() == "O-O-O") {
+                                this.board[0][2] = 'bR.png'
+                                this.board[0][3] = 'bK.png'
+                                this.board[0][0] = 'empty.png'
+                                this.board[0][4] = 'empty.png'
+                            }
+                        } else {
+                            if (this.game.moves[i].movePath.toUpperCase() == "O-O") {
+                                this.board[7][6] = 'wK.png'
+                                this.board[7][5] = 'wR.png'
+                                this.board[7][7] = 'empty.png'
+                                this.board[7][4] = 'empty.png'
+
+
+                            } else if (this.game.moves[i].movePath.toUpperCase() == "O-O-O") {
+                                this.board[7][2] = 'wK.png'
+                                this.board[7][3] = 'wR.png'
+                                this.board[7][0] = 'empty.png'
+                                this.board[7][4] = 'empty.png'
+                            }
+                        }
+                    } else {
+                        let file = 0
+                        let row = 8 - this.game.moves[i].movePath.substring(1, 2)
+                        switch (this.game.moves[i].movePath.substring(0, 1)) {
+                            case "a":
+                                file = 0
+                                break;
+                            case "b":
+                                file = 1
+                                break;
+                            case "c":
+                                file = 2
+                                break;
+                            case "d":
+                                file = 3
+                                break;
+                            case "e":
+                                file = 4
+                                break;
+                            case "f":
+                                file = 5
+                                break;
+                            case "g":
+                                file = 6
+                                break;
+                            case "h":
+                                file = 7
+                                break;
+                        }
+                        let piece = this.board[row][file]
+                        this.board[row][file] = 'empty.png'
+
+                        file = 0
+                        row = 8 - this.game.moves[i].movePath.substring(3, 4)
+                        switch (this.game.moves[i].movePath.substring(2, 3)) {
+                            case "a":
+                                file = 0
+                                break;
+                            case "b":
+                                file = 1
+                                break;
+                            case "c":
+                                file = 2
+                                break;
+                            case "d":
+                                file = 3
+                                break;
+                            case "e":
+                                file = 4
+                                break;
+                            case "f":
+                                file = 5
+                                break;
+                            case "g":
+                                file = 6
+                                break;
+                            case "h":
+                                file = 7
+                                break;
+                        }
+                        if (this.game.moves[i].movePath.includes("=")) {
+                            switch (this.game.moves[i].movePath.substring(this.game.moves[i].movePath.length-1)) {
+                                case 'Q':
+                                    if (i%2 == 1) {
+                                    piece = 'bQ.png'
+                                    } else {
+                                        piece = 'wQ.png'
+                                    }
+                                    break;
+                                case 'B':
+                                    if (i % 2 == 1) {
+                                        piece = 'bB.png'
+                                    } else {
+                                        piece = 'wB.png'
+                                    }
+                                    break;
+                                case 'N':
+                                    if (i % 2 == 1) {
+                                        piece = 'bN.png'
+                                    } else {
+                                        piece = 'wN.png'
+                                    }
+                                    break;
+                                case 'R':
+                                    if (i % 2 == 1) {
+                                        piece = 'bR.png'
+                                    } else {
+                                        piece = 'wR.png'
+                                    }
+                                    break;
+                                default:
+                            }
+                        }
+                        let boardRow = this.board[row]
+                        boardRow.splice(file, 1, piece)
+                        this.board.splice(row, 1, boardRow)
+
+                    }
+                }
+            },
+        }
+    });
+</script>

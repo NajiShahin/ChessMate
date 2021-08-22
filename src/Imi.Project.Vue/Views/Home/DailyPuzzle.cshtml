@@ -1,0 +1,224 @@
+﻿<h2 class="mb-4">Daily puzzle</h2>
+<div id="app">
+    <div id="response" hidden>{{info}}</div>
+    <a class="mt-2" v-on:click="goToGame" href="#">Visit website</a>
+    <div>Puzzle Rating: <strong>{{info.puzzle.rating}}</strong></div>
+    <div>Times played: <strong>{{info.puzzle.plays}}</strong></div>
+    <div class="mb-2"><strong>{{info.game.players[0].name}} vs {{info.game.players[1].name}}</strong></div>
+    <button class="btn btn-info mb-2" v-on:click="Retry">Retry</button>
+    <button class="btn btn-info mb-2" id="NextMove">Show next move</button>
+</div>
+<div class="alert-success" id="Completed" role="alert">
+</div>
+<div id="myBoard" style="width: 40%"></div>
+<br />
+<label class="mt-2">Status:</label>
+<div id="status"></div>
+
+
+<script>
+
+    function showBoard() {
+        var movesPlayed = 0
+        var response = document.getElementById("response").innerHTML
+        var audio = new Audio('/sounds/Move.wav');
+
+        response = JSON.parse(response)
+        var board = null
+        var game = new Chess()
+        game.load_pgn(response.game.pgn)
+
+        var $status = $('#status')
+        var $fen = $('#fen')
+        var $pgn = $('#pgn')
+
+        function onDragStart(source, piece, position, orientation) {
+            // do not pick up pieces if the game is over
+            if (game.game_over()) return false
+
+            // only pick up pieces for the side to move
+            if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+                (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+                return false
+            }
+        }
+
+        function onDrop(source, target) {
+            if (movesPlayed % 2 == 0 && movesPlayed <= response.puzzle.solution.length) { //Look if its your turn
+                let correctSource = response.puzzle.solution[movesPlayed].substring(0, 2)
+                let correctTarget = response.puzzle.solution[movesPlayed].substring(2, 4)
+                if (correctSource == source && correctTarget == target) { //See if move equals correct move from api
+
+
+                    // see if the move is legal
+                    var move = game.move({
+                        from: source,
+                        to: target,
+                        promotion: 'q' // NOTE: always promote to a queen for example simplicity
+                    })
+
+                    if (move == null) {       // illegal move
+                        return 'snapback'
+                    }
+
+                    updateStatus()
+
+
+                } else {
+                    return 'snapback'
+                }
+            }
+
+            //Computer does opponents move here
+            setTimeout(function () {
+                if (movesPlayed < response.puzzle.solution.length) {
+                    let correctSource = response.puzzle.solution[movesPlayed].substring(0, 2)
+                    let correctTarget = response.puzzle.solution[movesPlayed].substring(2, 4)
+                    game.move({
+                        from: correctSource,
+                        to: correctTarget,
+                        promotion: 'q' // NOTE: always promote to a queen for example simplicity
+                    })
+
+
+                    setTimeout(onSnapEnd, 400)
+                }
+            }, 100);
+
+        }
+
+        // update the board position after the piece snap
+        // for castling, en passant, pawn promotion
+        function onSnapEnd() {
+            if (movesPlayed <= response.puzzle.solution.length - 1) {
+                audio.play();
+                movesPlayed++
+            }
+            if (movesPlayed >= response.puzzle.solution.length) {
+                document.getElementById("Completed").innerHTML = "Puzzle Completed!"
+                document.getElementById("Completed").classList.add("alert")
+            }
+            board.position(game.fen())
+        }
+
+        function updateStatus() {
+            var status = ''
+
+            var moveColor = 'White'
+            if (game.turn() === 'b') {
+                moveColor = 'Black'
+            }
+
+            // checkmate?
+            if (game.in_checkmate()) {
+                status = 'Game over, ' + moveColor + ' is in checkmate.'
+            }
+
+            // draw?
+            else if (game.in_draw()) {
+                status = 'Game over, drawn position'
+            }
+
+            // game still on
+            else {
+                status = moveColor + ' to move'
+
+                // check?
+                if (game.in_check()) {
+                    status += ', ' + moveColor + ' is in check'
+                }
+            }
+
+
+            $status.html(status)
+            $fen.html(game.fen())
+            $pgn.html(game.pgn())
+        }
+
+        var config = {
+            draggable: true,
+            position: game.fen(),
+            onDragStart: onDragStart,
+            onDrop: onDrop,
+            onSnapEnd: onSnapEnd
+        }
+        board = Chessboard('myBoard', config)
+
+        function nextMove() {
+
+            let correctSource = response.puzzle.solution[movesPlayed].substring(0, 2)
+            let correctTarget = response.puzzle.solution[movesPlayed].substring(2, 4)
+            game.move({
+                from: correctSource,
+                to: correctTarget,
+                promotion: 'q' // NOTE: always promote to a queen for example simplicity
+            })
+            setTimeout(onSnapEnd, 400)
+
+
+
+            setTimeout(function () {
+
+                correctSource = response.puzzle.solution[movesPlayed].substring(0, 2)
+                correctTarget = response.puzzle.solution[movesPlayed].substring(2, 4)
+                game.move({
+                    from: correctSource,
+                    to: correctTarget,
+                    promotion: 'q' // NOTE: always promote to a queen for example simplicity
+                })
+                game.move({
+                    from: correctSource,
+                    to: correctTarget,
+                    promotion: 'q' // NOTE: always promote to a queen for example simplicity
+                })
+                setTimeout(onSnapEnd, 100)
+
+            }, 700)
+
+
+
+
+        }
+
+
+        document.getElementById("NextMove").addEventListener("click", nextMove)
+
+        updateStatus()
+
+
+    }
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            info: {
+                game: {
+                    pgn: ""
+                }
+            }
+        },
+        created: function () {
+            axios
+                .get("https://lichess.org/api/puzzle/daily")
+                .then(response => this.info = response.data)
+                .then(response => showBoard())
+           
+        },
+        methods: {
+            goToGame: function () {
+                window.location.assign("https://lichess.org/training/" + this.info.puzzle.id);
+            },
+            Retry: function () {
+                showBoard()
+            }
+
+        },
+    });
+
+    // NOTE: this example uses the chess.js library:
+    // https://github.com/jhlywa/chess.js
+
+
+
+
+</script>

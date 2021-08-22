@@ -1,0 +1,20 @@
+﻿@page "/events"
+@inherits EventsBase
+
+<h3>Events</h3>
+
+@if (CurrentEvent == null)
+{
+    <EventList EventListItems="eventListItem"
+               OnAddClick="AddEvent"
+               OnEditClick="EditEvent"
+               OnDeleteClick="DeleteEvent">
+    </EventList>
+}
+else
+{
+    <Event Item="CurrentEvent"
+           OnSaveClick="SaveEvent"
+           OnCancelClick="ShowList">
+    </Event>
+}

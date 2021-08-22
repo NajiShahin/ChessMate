@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Imi.Project.Mobile.Pages.GameListPage"
+             xmlns:bhv="clr-namespace:Imi.Project.Mobile.Behaviors"
+             xmlns:conv="clr-namespace:Imi.Project.Mobile.Converters">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:StringPlayedAsToStringKnightConverter x:Key="PlayedasToKnight" />
+            <conv:StringOutcomeToColorConverter x:Key="OutcomeToColor" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+
+                <StackLayout Margin="10,0,10,0">
+
+                <Label Text="Games" FontSize="50" TextColor="#2b2828" HorizontalOptions="Center" Margin="0,25,0,15"></Label>
+                <Entry TextChanged="Entry_TextChanged" Text="{Binding GamesSearch}"></Entry>
+                <ListView ItemsSource="{Binding Games}"
+                          HasUnevenRows="False" RowHeight="60" >
+                    <ListView.Behaviors>
+                        <bhv:EventToCommandBehavior 
+                        EventName="ItemTapped"
+                        Command="{Binding OpenGameBoard}"
+                        EventArgsConverter="{StaticResource ItemTappedEventArgsConv}" />
+                    </ListView.Behaviors>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <Grid Padding="5,10">
+
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"></ColumnDefinition>
+                                        <ColumnDefinition Width="3*"></ColumnDefinition>
+                                        <ColumnDefinition Width="1*"></ColumnDefinition>
+                                        <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding PlayedAs, Converter={StaticResource PlayedasToKnight}}" TextColor="#2b2828" HorizontalTextAlignment="Center" Padding="0,0,0,0" FontSize="Large" VerticalTextAlignment="Center" FontFamily="Chess Alpha">
+                                </Label>
+                                    <Label Text="{Binding Name}" TextColor="#2b2828" Grid.Row="0" Grid.Column="1" FontSize="16"
+                                           VerticalOptions="Center" HorizontalOptions="Start" />
+                                    <Label Text="{Binding PlayedAs}" TextColor="#2b2828" Grid.Row="0" Grid.Column="2" FontSize="Default" 
+                                           VerticalOptions="Center" HorizontalOptions="StartAndExpand" />
+                                <Label Text="{Binding Outcome}" TextColor="{Binding Outcome, Converter={StaticResource OutcomeToColor}}" Grid.Row="0" Grid.Column="3" FontSize="Default"
+                                           VerticalOptions="Center" HorizontalOptions="StartAndExpand" />
+
+
+                                </Grid>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+
+    </ContentPage.Content>
+
+</ContentPage>

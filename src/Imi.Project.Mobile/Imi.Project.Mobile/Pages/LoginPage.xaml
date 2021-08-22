@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:inputLayout="clr-namespace:Syncfusion.XForms.TextInputLayout;assembly=Syncfusion.Core.XForms"
+             x:Class="Imi.Project.Mobile.Pages.LoginPage">
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Spacing="5" Margin="25,0" VerticalOptions="Center">
+
+                <Label Text="j" TextColor="#2b2828" HorizontalTextAlignment="Center" Padding="0,0,0,0" FontSize="Header" FontFamily="Chess Alpha">
+                </Label>
+                <Label Text="ChessMate" TextColor="#2b2828" HorizontalTextAlignment="Center" Margin="0,0,0,25" FontSize="40"></Label>
+
+
+                <inputLayout:SfTextInputLayout
+                Hint="Name">
+                    <Entry Text="{Binding Username}" Keyboard="Text" />
+                </inputLayout:SfTextInputLayout>
+
+                <inputLayout:SfTextInputLayout
+                Hint="Password"
+                EnablePasswordVisibilityToggle="true">
+                    <Entry Text="{Binding Password}" IsPassword="True"></Entry>
+                </inputLayout:SfTextInputLayout>
+                <Label Text="{Binding LoginMessage}" TextColor="Red" Margin="0,0,0,25"></Label>
+
+                <Button Text="Log In" 
+                        HorizontalOptions="Start"
+                        WidthRequest="150" 
+                        Margin="0,15,0,0" 
+                        FontSize="Medium"
+                        Command="{Binding GoToTabbedPage}">
+                </Button>
+                <Button Text="Register" 
+                        HorizontalOptions="Start"
+                        WidthRequest="150" 
+                        FontSize="Medium"
+                        Command="{Binding Register}">
+                </Button>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+
+</ContentPage>

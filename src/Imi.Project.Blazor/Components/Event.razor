@@ -1,0 +1,32 @@
+﻿<EditForm Model="@Item" OnValidSubmit="@(e => OnSaveClick.InvokeAsync(Item))">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name: </label>
+        <InputText id="name" @bind-Value="Item.Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="content">Description: </label>
+        <InputTextArea id="content" @bind-Value="Item.Description" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="content">Date: </label>
+        <InputDate id="content" @bind-Value="Item.DateTimeOfEvent" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-warning" @onclick="OnCancelClick">Cancel</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public EventItem Item { get; set; }
+
+    [Parameter]
+    public EventCallback<EventItem> OnSaveClick { get; set; }
+    [Parameter]
+    public EventCallback OnCancelClick { get; set; }
+}

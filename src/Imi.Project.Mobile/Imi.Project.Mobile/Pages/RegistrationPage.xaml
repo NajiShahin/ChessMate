@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Imi.Project.Mobile.Pages.RegistrationPage">
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Margin="10">
+                <Label Text="Registration" HorizontalOptions="Center" FontSize="18" />
+                <Label Text="Username" />
+                <Entry Text="{Binding Username}"/>
+                <Label Text="Firstname" />
+                <Entry Text="{Binding FirstName}"/>
+                <Label Text="Lastname" />
+                <Entry Text="{Binding LastName}"/>
+                <Label Text="Email" />
+                <Entry Text="{Binding Email}"/>
+                <Label Text="Password" />
+                <Entry Text="{Binding Password}"/>
+                <Label Text="Date of Birth" />
+                <DatePicker HorizontalOptions="Start" Date="{Binding DateOfBirth}"/>
+                <Label Text="Streetname" />
+                <Entry Text="{Binding StreetName}"/>
+                <Label Text="Housenumber" />
+                <Entry Text="{Binding HouseNumber}"/>
+                <Label Text="Postalcode" />
+                <Entry Text="{Binding PostalCode}"/>
+                <Label Text="Cityname" />
+                <Entry Text="{Binding CityName}"/>
+                <Label Text="{Binding LoginMessage}">
+                    </Label>
+                        <Button Text="Register" 
+                            HorizontalOptions="Start"
+                            WidthRequest="150" 
+                            FontSize="Medium"
+                        Command="{Binding Register}">
+                </Button>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

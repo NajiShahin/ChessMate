@@ -1,0 +1,42 @@
+﻿<button class="btn btn-primary" @onclick="OnAddClick">Add event</button>
+<table class="table mt-3 table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (EventListItems != null)
+        {
+            @foreach (var item in EventListItems.OrderBy(e => e.DateTimeOfEvent))
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.DateTimeOfEvent.ToString("dd/MM/yyyy")</td>
+                    <td><button class="btn btn-warning" @onclick="e => OnEditClick.InvokeAsync(item)">Edit</button></td>
+                    <td><button class="btn btn-danger" @onclick="e => OnDeleteClick.InvokeAsync(item)">Delete</button></td>
+                </tr>
+            }
+        }
+
+
+    </tbody>
+</table>
+
+@code {
+
+    [Parameter]
+    public EventListItem[] EventListItems { get; set; }
+
+    [Parameter]
+    public EventCallback OnAddClick { get; set; }
+
+    [Parameter]
+    public EventCallback<EventListItem> OnEditClick { get; set; }
+
+    [Parameter]
+    public EventCallback<EventListItem> OnDeleteClick { get; set; }
+}

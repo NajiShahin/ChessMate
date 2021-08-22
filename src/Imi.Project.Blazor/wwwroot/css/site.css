@@ -1,0 +1,126 @@
+
+.chess-board {
+    border-spacing: 0;
+    border-collapse: collapse;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+.chess-board th {
+    padding: 0.75em;
+}
+
+    .chess-board th + th {
+        border-bottom: 1px solid #000;
+    }
+
+    .chess-board th:first-child,
+    .chess-board td:last-child {
+        border-right: 1px solid #000;
+    }
+
+.chess-board tr:last-child td {
+    border-bottom: 1px solid;
+}
+
+.chess-board th:empty {
+    border: none;
+}
+
+    .chess-board td {
+        width: 1.2em;
+        height: 1.2em;
+        text-align: center;
+        font-size: 42px;
+        line-height: 0;
+        padding-bottom: 8px;
+        padding-right: 4px;
+        padding-left: 4px;
+    }
+
+.chess-board .light {
+    background: #eee;
+    font-family:'Chess Alpha';
+}
+
+.chess-board .dark {
+    background: #aaa;
+    font-family:'Chess Alpha';
+}
+
+.chess-board .check {
+    background: #ff5959;
+    font-family: 'Chess Alpha';
+}
+
+@font-face {
+    font-family: "Chess Alpha";
+    src: url("Fonts/Alpha.tff") format("woff");
+}
+
+html {
+    zoom: 80%;
+}
+
+
+.chess-board-game {
+    border-spacing: 0;
+    border-collapse: collapse;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+    cursor: pointer;
+}
+
+    .chess-board-game th {
+        padding: 0.75em;
+    }
+
+        .chess-board-game th + th {
+            border-bottom: 1px solid #000;
+        }
+
+        .chess-board-game th:first-child,
+        .chess-board-game td:last-child {
+            border-right: 1px solid #000;
+        }
+
+    .chess-board-game tr:last-child td {
+        border-bottom: 1px solid;
+    }
+
+    .chess-board-game th:empty {
+        border: none;
+    }
+    .chess-board-game img{
+        width: 70px;
+        height: 70px;
+        text-align: center;
+    }
+    .chess-board-game td {
+        width: 85px;
+        height: 85px;
+        text-align: center;
+
+    }
+
+    .chess-board-game .light {
+        background: #ecd3b9;
+        font-family: 'Chess Alpha';
+    }
+
+    .chess-board-game .dark {
+        background: #a16f5a;
+        font-family: 'Chess Alpha';
+    }
+
+    .chess-board-game .check {
+        background: #ff5959;
+        font-family: 'Chess Alpha';
+    }
+
+    .floatRight{
+        float:right;
+    }

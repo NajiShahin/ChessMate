@@ -1,0 +1,171 @@
+﻿<div id="app">
+    <h2 class="m-2">Profile</h2>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <h6 class="mb-0">Username</h6>
+                </div>
+                <div v-if="ShowOverview" class="col-sm-9 text-secondary">
+                    {{info.username}}
+                </div>
+                <div v-else class="col-sm-9 text-secondary">
+                    <input class="form-control" v-model="info.username" />
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-sm-3">
+                    <h6 class="mb-0">First Name</h6>
+                </div>
+                <div v-if="ShowOverview" class="col-sm-9 text-secondary">
+                    {{info.firstName}}
+                </div>
+                <div v-else class="col-sm-9 text-secondary">
+                    <input class="form-control" v-model="info.firstName" />
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-3">
+                    <h6 class="mb-0">Last Name</h6>
+                </div>
+                <div v-if="ShowOverview" class="col-sm-9 text-secondary">
+                    {{info.lastName}}
+                </div>
+                <div v-else class="col-sm-9 text-secondary">
+                    <input class="form-control" v-model="info.lastName" />
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-3">
+                    <h6 class="mb-0">Email</h6>
+                </div>
+                <div v-if="ShowOverview" class="col-sm-9 text-secondary">
+                    {{info.email}}
+                </div>
+                <div v-else class="col-sm-9 text-secondary">
+                    <input class="form-control" v-model="info.email" />
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-3">
+                    <h6 class="mb-0">Games played</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                    {{gameCount}}
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-3">
+                    <h6 class="mb-0">Events</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                    <span v-for="event in info.events">
+                        ● {{event.name}}<br />
+
+                    </span>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div v-if="ShowOverview" class="col-sm-12">
+                    <a class="btn btn-info text-white" v-on:click="ChangeToEdit">Edit</a>
+                    <a class="btn btn-danger float-right text-white" v-if="claims.id != info.id && claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] == 'Admin'" v-on:click="DeleteUser">Delete</a>
+                </div>
+                <div v-else class="col-sm-12">
+                    <a class="btn btn-danger text-white" v-on:click="CancelEdit">Cancel</a>
+                    <a class="btn btn-success text-white" v-on:click="ConfirmEdit">Confirm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+
+    var apiURL = 'https://localhost:5001/api/games';
+    var token = localStorage.chessMatePassword;
+    const axiosConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    };
+
+    var coindeskapp = new Vue({
+        el: "#app",
+        data: {
+            ShowOverview: true,
+            info: "",
+            gameCount: "",
+            tempInfo: null,
+            claims: null,
+            firstName: "",
+            lastName: "",
+            email: "",
+        },
+        created:
+            function () {
+                if (localStorage.chessMatePassword == '') {
+                    location.href = '@Url.Action("login", "home")'
+                }
+                this.claims = parseJwt(localStorage.chessMatePassword)
+                var userId = '@ViewContext.RouteData.Values["id"]'
+                if (userId == '') {
+                    axios
+                        .get("https://localhost:5001/api/Users/" + this.claims.id, axiosConfig)
+                        .then(response => (this.info = response.data))
+                        .then(response => this.gameCount = response.gameCount)
+                } else {
+                    axios
+                        .get("https://localhost:5001/api/Users/" + userId, axiosConfig)
+                        .then(response => (this.info = response.data))
+                        .then(response => this.gameCount = response.gameCount)
+                }
+
+            },
+        methods: {
+            ChangeToEdit: function () {
+                this.ShowOverview = !this.ShowOverview
+                this.firstName = this.info.firstName
+                this.lastName = this.info.lastName
+                this.email = this.info.email
+            },
+            CancelEdit: function () {
+                this.ShowOverview = !this.ShowOverview
+                this.info.firstName = this.firstName
+                this.info.lastName = this.lastName
+                this.info.email = this.email
+            },
+            ConfirmEdit: function () {
+                axios
+                    .put("https://localhost:5001/api/Users/", this.info, axiosConfig)
+                    .then(response => (this.info = response.data))
+                this.ShowOverview = !this.ShowOverview
+
+            },
+            DeleteUser: function () {
+                axios
+                    .delete("https://localhost:5001/api/Users/" + this.info.id, axiosConfig)
+                    location.href = '@Url.Action("Usermanagement", "home")'
+            }
+        }
+    });
+
+</script>

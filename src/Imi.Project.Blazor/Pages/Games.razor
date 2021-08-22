@@ -1,0 +1,19 @@
+﻿@using Imi.Project.Common
+@page "/games"
+@inherits GamesBase
+
+<h3>Games with bugs</h3>
+
+@if (CurrentGame == null)
+{
+    <GameList UserListItems="GameListItem"
+              OnViewClick="ViewGame">
+    </GameList>
+}
+else
+{
+    <Game Item="CurrentGame" chessBoard="Chessboard"
+          OnBackClick="ShowBuggedGameList">
+
+    </Game>
+}

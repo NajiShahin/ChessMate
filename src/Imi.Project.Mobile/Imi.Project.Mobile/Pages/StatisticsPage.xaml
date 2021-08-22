@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Imi.Project.Mobile.Pages.StatisticsPage"
+             xmlns:chart="clr-namespace:Syncfusion.SfChart.XForms;assembly=Syncfusion.SfChart.XForms">
+
+    <ScrollView>
+
+        <StackLayout Margin="10">
+        <StackLayout.Resources>
+            <ResourceDictionary>
+                <chart:ChartColorCollection x:Key="Colors">
+                    <Color>#00c434</Color>
+                    <Color>#bababa</Color>
+                    <Color>Red</Color>
+                </chart:ChartColorCollection>
+            </ResourceDictionary>
+        </StackLayout.Resources>
+        <Label Text="Statistics" FontSize="50" TextColor="#2b2828" HorizontalOptions="Center" Margin="0,25,0,15"></Label>
+
+
+        <chart:SfChart>
+
+            <chart:SfChart.Series>
+                <chart:PieSeries ItemsSource="{Binding Data}" XBindingPath="Name" YBindingPath="Amount">
+                    <chart:PieSeries.ColorModel>
+                        <chart:ChartColorModel Palette="Custom" CustomBrushes="{StaticResource Colors}"/>
+                    </chart:PieSeries.ColorModel>
+                </chart:PieSeries>
+            </chart:SfChart.Series>
+
+        </chart:SfChart>
+
+        <ListView ItemsSource="{Binding WinrateOpenings}"
+                          HasUnevenRows="False" RowHeight="60" >
+            <ListView.Header>
+                <Label Text="Opening winrates W/D/L" TextColor="#2b2828" HorizontalTextAlignment="Center" Padding="0,0,0,0" FontSize="Large" VerticalTextAlignment="Center"></Label>
+            </ListView.Header>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <Grid Padding="5,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"></ColumnDefinition>
+                                <ColumnDefinition Width="5*"></ColumnDefinition>
+                                <ColumnDefinition Width="1.5*"></ColumnDefinition>
+                                <ColumnDefinition Width="1.5*"></ColumnDefinition>
+                                <ColumnDefinition Width="1.5*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding Number}" TextColor="#2b2828" HorizontalTextAlignment="Center" Padding="0,0,0,0" FontSize="Large" VerticalTextAlignment="Center"></Label>
+                            <Label Text="{Binding Name}" TextColor="#2b2828" Grid.Row="0" Grid.Column="1" FontSize="16"
+                                           VerticalOptions="Center" HorizontalOptions="Start" />
+                            <Label Text="{Binding Winrate}" TextColor="#2b2828" Grid.Row="0" Grid.Column="2" FontSize="14"
+                                           VerticalOptions="Center" HorizontalOptions="Start" />
+                            <Label Text="{Binding Drawrate}" TextColor="#2b2828" Grid.Row="0" Grid.Column="3" FontSize="14"
+                                           VerticalOptions="Center" HorizontalOptions="Start" />
+                            <Label Text="{Binding Lossrate}" TextColor="#2b2828" Grid.Row="0" Grid.Column="4" FontSize="14"
+                                           VerticalOptions="Center" HorizontalOptions="Start" />
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+    </StackLayout>
+        </ScrollView>
+
+
+</ContentPage>

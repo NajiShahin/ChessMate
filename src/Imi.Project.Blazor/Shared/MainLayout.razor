@@ -1,0 +1,26 @@
+﻿@inherits LayoutComponentBase
+@using Imi.Project.Blazor.Core.Models
+
+<MainMenu MenuItems="MenuItems" />
+<div class="container mt-3">
+    @Body
+</div>
+
+
+@code {
+    public MenuItem[] MenuItems { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.loadMenuItems();
+    }
+    private void loadMenuItems()
+    {
+        this.MenuItems = new MenuItem[] {
+            new MenuItem() { Caption = "Users", Href = "users" },
+            new MenuItem() { Caption = "Games", Href = "games" },
+            new MenuItem() { Caption = "Events", Href = "events" },
+            new MenuItem() { Caption = "ChessGame", Href = "chessgame" }
+        };
+    }
+}

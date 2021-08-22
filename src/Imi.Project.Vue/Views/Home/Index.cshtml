@@ -1,0 +1,78 @@
+﻿<div id="app">
+    <h2>Your games</h2>
+    <div class=" table-responsive">
+        <table class="table">
+            <thead class="w-100">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Moves</th>
+                    <th scope="col">Result</th>
+                    <th scope="col">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="game in info">
+                    <td>
+                        <a class="nav-link" href="#" v-on:click="GoToGame(game)">{{ game.name }}</a>
+                    </td>
+                    <td>
+                        <span>{{Math.floor(game.moves.length/2)}}</span>
+                    </td>
+                    <td>
+                        <span v-if="game.outcome == 'Win'" style="color:green;">W</span>
+                        <span v-if="game.outcome == 'Loss'" style="color:red;">L</span>
+                        <span v-if="game.outcome == 'Draw'" style="color:gray;">D</span>
+                    </td>
+                    <td>{{game.dateAdded.substring(0,10)}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+<script>
+    var apiURL = 'https://localhost:5001/api/games';
+    var token = localStorage.chessMatePassword;
+    const axiosConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    };
+
+    var app = new Vue({
+        el: "#app",
+        data: {
+            info: null,
+            claims: null,
+        },
+        created:
+            function () {
+                if (localStorage.chessMatePassword == '') {
+                    location.href = '@Url.Action("login", "home")'
+                }
+                this.claims = parseJwt(localStorage.chessMatePassword)
+
+                axios
+                    .get("https://localhost:5001/api/Users/" + this.claims.id + "/games/", axiosConfig)
+                    .then(response => (this.info = response.data))
+            },
+        methods: {
+            GoToGame: function (game) {
+                location.href = `home/game/` + game.id
+            },
+        }
+    });
+
+</script>

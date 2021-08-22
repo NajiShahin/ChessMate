@@ -1,0 +1,161 @@
+﻿@using Imi.Project.Common
+@inject IGameService service;
+
+<button class="btn btn-primary" @onclick="e => OnBackClick.InvokeAsync(Item)">Back</button>
+
+<h5 class="mt-2">Played as: @Item.PlayedAs</h5>
+<h5>Outcome: @Item.Outcome</h5>
+<h5>Opening: @Item.OpeningName</h5>
+<h5>Bugmessage: @Item.BugMessage</h5>
+<table class="chess-board">
+    @if (Item.PlayedAs == "White" && IsTurned == false || Item.PlayedAs == "Black" && IsTurned == true)
+    {
+        <tbody>
+            <tr>
+                <th></th>
+                <th>a</th>
+                <th>b</th>
+                <th>c</th>
+                <th>d</th>
+                <th>e</th>
+                <th>f</th>
+                <th>g</th>
+                <th>h</th>
+            </tr>
+            @{int k = 9;}
+            @for (int i = 0; i < 8; i++)
+            {
+                <tr>
+                    <th>@{k--;}@k</th>
+
+                    @for (int j = 0; j < 8; j++)
+                    {
+
+                        @if ((j + i) % 2 == 0)
+                        {
+                            <td class="light">@chessBoard[i, j]</td>
+                        }
+                        else
+                        {
+                            <td class="dark">@chessBoard[i, j]</td>
+                        }
+
+                    }
+                </tr>
+
+            }
+        </tbody>
+    }
+    else
+    {
+        <tbody>
+            <tr>
+                <th></th>
+                <th>h</th>
+                <th>g</th>
+                <th>f</th>
+                <th>e</th>
+                <th>d</th>
+                <th>c</th>
+                <th>b</th>
+                <th>a</th>
+            </tr>
+            @{int k = 0;}
+            @for (int i = 7; i >= 0; i--)
+            {
+                <tr>
+                    <th>@{k++;}@k</th>
+
+                    @for (int j = 7; j >= 0; j--)
+                    {
+
+                        @if ((j + i) % 2 == 0)
+                        {
+                            <td class="dark">@chessBoard[i, j]</td>
+                        }
+                        else
+                        {
+                            <td class="light">@chessBoard[i, j]</td>
+                        }
+
+                    }
+                </tr>
+
+            }
+        </tbody>
+    }
+
+</table>
+<button class="btn btn-primary m-4" @onclick="PreviousMove">Previous</button>
+<button class="btn btn-primary" @onclick="NextMove">Next</button>
+<button class="btn btn-primary ml-4" @onclick="TurnBoard">Turn Board</button>
+<td><button class="btn btn-danger" @onclick="EditGame">Change bug state</button></td>
+
+@if (!IsInList)
+{
+    <label class="alert alert-warning mt-2">This game has no bugs and will be removed from the list</label>
+}
+
+@code {
+
+    [Parameter]
+    public EventCallback OnBackClick { get; set; }
+
+    [Parameter]
+    public GameItem Item { get; set; }
+
+    [Parameter]
+    public char[,] chessBoard { get; set; }
+
+    private int Move { get; set; } = 0;
+
+    private bool IsTurned { get; set; } = false;
+
+    private bool IsInList { get; set; } = true;
+
+    ChessConverter converter = new ChessConverter('p', 'r', 'h', 'b', 'q', 'k', 'o', 't', 'j', 'n', 'w', 'l');
+
+    public async Task EditGame()
+    {
+        Item.IsBugged = !Item.IsBugged;
+        await service.Update(Item);
+        IsInList = !IsInList;
+    }
+
+    public void MovePiece(int move)
+    {
+        chessBoard = converter.GetStartingBoard();
+        for (int i = 0; i < move; i++)
+        {
+            if (i % 2 == 0)
+            {
+                converter.convertPgnMoveToBoard(Item.Moves[i].MovePGN, chessBoard, Turn.White);
+            }
+            else
+            {
+                converter.convertPgnMoveToBoard(Item.Moves[i].MovePGN, chessBoard, Turn.Black);
+            }
+        }
+    }
+
+    public void NextMove()
+    {
+        if (Move < Item.Moves.Count)
+        {
+            MovePiece(++Move);
+        }
+    }
+
+    public void PreviousMove()
+    {
+        if (Move > 0)
+        {
+            MovePiece(--Move);
+        }
+    }
+
+    public void TurnBoard()
+    {
+        IsTurned = !IsTurned;
+    }
+}

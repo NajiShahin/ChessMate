@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:local="clr-namespace:Imi.Project.Mobile.Pages"
+             x:Class="Imi.Project.Mobile.Pages.MainTabbedPage"
+            xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
+            android:TabbedPage.ToolbarPlacement="Bottom">
+    <!--Pages can be added as references or inline-->
+    <local:GameListPage Title="Games" IconImageSource="WhitePawn.png">
+    </local:GameListPage>
+    <local:UploadPage Title="Upload" IconImageSource="upload.png">
+    </local:UploadPage>
+    <local:OpeningsPage Title="Openings" IconImageSource="WhiteKnight.png">
+    </local:OpeningsPage>
+    <local:EventsPage Title="Events" IconImageSource="Events.png">
+    </local:EventsPage>
+    <local:MorePage Title="More" IconImageSource="more.png">
+    </local:MorePage>
+
+</TabbedPage>

@@ -1,0 +1,41 @@
+﻿<table class="table mt-3 table-hover">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (UserListItems != null)
+        {
+            @foreach (var item in UserListItems)
+            {
+                <tr>
+                    <td>@item.UserName</td>
+                    <td><button class="btn btn-primary" @onclick="e => OnViewClick.InvokeAsync(item)">View</button></td>
+                    <td><button class="btn btn-warning" @onclick="e => OnEditClick.InvokeAsync(item)">Edit</button></td>
+                    <td><button class="btn btn-danger" @onclick="e => OnDeleteClick.InvokeAsync(item)">Delete</button></td>
+                </tr>
+            }
+        }
+
+
+    </tbody>
+</table>
+
+@code {
+
+    [Parameter]
+    public UserListItem[] UserListItems { get; set; }
+
+    [Parameter]
+    public EventCallback<UserListItem> OnViewClick { get; set; }
+
+    [Parameter]
+    public EventCallback<UserListItem> OnEditClick { get; set; }
+
+    [Parameter]
+    public EventCallback<UserListItem> OnDeleteClick { get; set; }
+}

@@ -1,0 +1,26 @@
+﻿@page "/users"
+@inherits UsersBase 
+
+<h3>Users</h3>
+
+@if (CurrentUser == null)
+{
+    <UserList UserListItems="userListItem"
+              OnEditClick="EditUser"
+              OnDeleteClick="DeleteUser"
+              OnViewClick="ViewUserStats">
+    </UserList>
+}
+else if (showStats == false)
+{
+    <User Item="CurrentUser"
+          OnSaveClick="SaveUser"
+          OnCancelClick="ShowList">
+    </User>
+}
+else
+{
+    <UserStats User="CurrentUser"
+               Games="Games">
+    </UserStats>
+}

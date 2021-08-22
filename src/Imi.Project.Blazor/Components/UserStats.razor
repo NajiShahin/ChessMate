@@ -1,0 +1,144 @@
+﻿@inject IStatisticsService service;
+@using Syncfusion.Blazor.Charts
+<h4>@User.Username</h4>
+@if (Games.Count() == 0)
+{
+    <p>No games played</p>
+}
+else
+{
+    <SfAccumulationChart Title="Winratio" EnableSmartLabels="true">
+        <AccumulationChartLegendSettings Visible="false"></AccumulationChartLegendSettings>
+
+        <AccumulationChartSeriesCollection>
+            <AccumulationChartSeries DataSource="@StatisticsDetails" XName="GameResult" YName="count" Name="GameResult" PointColorMapping="Fill">
+                <AccumulationDataLabelSettings Visible="true" Name="GameResult"></AccumulationDataLabelSettings>
+            </AccumulationChartSeries>
+            <AccumulationChartTooltipSettings Enable="true"></AccumulationChartTooltipSettings>
+
+        </AccumulationChartSeriesCollection>
+    </SfAccumulationChart>
+
+
+    <table class="table mt-3 table-hover">
+        <thead>
+            <tr>
+                <th>Opening</th>
+                <th>Win</th>
+                <th>Draw</th>
+                <th>Loss</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 1; i < 6; i++)
+            {
+                if (@GetOpeningName(i).Result != "")
+                {
+                    <tr>
+                        <td>
+                            @GetOpeningName(i).Result
+                        </td>
+                        <td>
+                            @GetOpeningWinrate(i).Result%
+                        </td>
+                        <td>@GetOpeningDrawrate(i).Result%</td>
+                        <td>@GetOpeningLossrate(i).Result%</td>
+                    </tr>
+                }
+
+            }
+
+        </tbody>
+    </table>
+
+
+}
+
+@code {
+    [Parameter]
+    public UserItem User { get; set; }
+
+    [Parameter]
+    public IEnumerable<GameItem> Games { get; set; }
+
+    IEnumerable<Guid> OpeningsGuidList = new List<Guid>() { };
+
+
+    private int Won;
+    private int Drawn;
+    private int Lost;
+
+    public class Statistics
+    {
+        public string GameResult { get; set; }
+        public double count { get; set; }
+        public string Fill { get; set; }
+
+    }
+
+    public List<Statistics> StatisticsDetails = new List<Statistics>
+{
+        new Statistics { GameResult = "Win", count = 0, Fill="#00db4d"},
+        new Statistics { GameResult = "Draw", count = 0, Fill="#adadad"},
+        new Statistics { GameResult = "Loss", count = 0, Fill="#e60800"},
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CalculateGames();
+    }
+
+    private Task CalculateGames()
+    {
+        StatisticsDetails.FirstOrDefault(s => s.GameResult == "Win").count = Games.Where(g => g.Outcome == "Win").Count();
+        StatisticsDetails.FirstOrDefault(s => s.GameResult == "Draw").count = Games.Where(g => g.Outcome == "Draw").Count();
+        StatisticsDetails.FirstOrDefault(s => s.GameResult == "Loss").count = Games.Where(g => g.Outcome == "Loss").Count();
+        return Task.CompletedTask;
+    }
+
+
+
+    private async Task<decimal> GetOpeningWinrate(int place)
+    {
+        var openingList = await service.GetMostPlayedOpenings(User.Id, 5, "");
+        if (openingList.Count() < place)
+        {
+            return 0;
+        }
+        Guid openingId = openingList.ToList()[place - 1];
+        var a = await service.GetOpeningWinRate(User.Id, openingId, "Win", "");
+        return a;
+    }
+
+    private async Task<decimal> GetOpeningDrawrate(int place)
+    {
+        var openingList = await service.GetMostPlayedOpenings(User.Id, 5, "");
+        if (openingList.Count() < place)
+        {
+            return 0;
+        }
+        Guid openingId = openingList.ToList()[place - 1];
+        return await service.GetOpeningWinRate(User.Id, openingId, "Draw", "");
+    }
+
+    private async Task<decimal> GetOpeningLossrate(int place)
+    {
+        var openingList = await service.GetMostPlayedOpenings(User.Id, 5, "");
+        if (openingList.Count() < place)
+        {
+            return 0;
+        }
+        Guid openingId = openingList.ToList()[place - 1];
+        return await service.GetOpeningWinRate(User.Id, openingId, "Loss", "");
+    }
+
+    private async Task<string> GetOpeningName(int place)
+    {
+        var openingList = await service.GetMostPlayedOpenings(User.Id, 5, "");
+        if (openingList.Count() < place)
+        {
+            return "";
+        }
+        return Games.Where(g => g.OpeningId == openingList?.Skip(place - 1 )?.First())?.FirstOrDefault()?.OpeningName;
+    }
+}

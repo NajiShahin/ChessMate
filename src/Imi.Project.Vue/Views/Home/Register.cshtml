@@ -1,0 +1,76 @@
+﻿<div id="app">
+    <h2 class="m-2">Register</h2>
+
+    <form method="post">
+
+        <div class="form-group w-25">
+            <input class="form-control" v-model="newUser.username" placeholder="Username"> <br />
+            <input class="form-control" v-model="newUser.firstName" placeholder="FirstName"> <br />
+            <input class="form-control" v-model="newUser.lastName" placeholder="LastName"> <br />
+            <input class="form-control" v-model="newUser.email" placeholder="Email"> <br />
+            <input class="form-control" v-model="newUser.password" placeholder="Password"> <br />
+            <input class="form-control" type="date" v-model="newUser.dateOfBirth" placeholder="Date Of Birth"> <br />
+            <input class="form-control" v-model="newUser.streetName" placeholder="StreetName"> <br />
+            <input class="form-control" type="number" v-model="newUser.houseNumber" placeholder="House Number"> <br />
+            <input class="form-control" v-model="newUser.postalCode" placeholder="PostalCode"> <br />
+            <input class="form-control" v-model="newUser.cityName" placeholder="City Name"> <br />
+            <label class="text-danger">{{errorMessage}}</label>
+        </div>
+    </form>
+    <button v-on:click="addUser(newUser)" class=" btn btn-info">Submit</button>
+</div>
+
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            errorMessage: "",
+            newUser: {
+                username: "",
+                firstName: "",
+                lastName: "",
+                email: "",
+                password: "",
+                dateOfBirth: "",
+                streetName: "",
+                houseNumber: 0,
+                postalCode: "",
+                cityName: ""
+            },
+            loginUser: {
+                username: "",
+                password: "",
+            }
+        },
+        methods: {
+            addUser: function () {
+                this.newUser.houseNumber = parseInt(this.newUser.houseNumber)
+
+                console.log(localStorage.chessMatePassword)
+                this.loginUser.username = this.newUser.username
+                this.loginUser.password = this.newUser.password
+
+                axios
+                    .post("https://localhost:5001/api/Auth/register", this.newUser)
+                    .catch(error => this.errorMessage = "An error occurred")
+                    .then(response => (this.info = response))
+                    .then(response =>
+                        axios
+                        .post("https://localhost:5001/api/Auth/login", this.loginUser)
+                        .then(response => localStorage.setItem('chessMatePassword', response.data.token),
+                            setTimeout(function () {
+                                if (localStorage.chessMatePassword != '') {
+                                    location.href = '@Url.Action("index", "home")'
+                                }
+                            },50)
+
+                        ))
+
+
+
+
+                }
+            },
+    });
+
+</script>

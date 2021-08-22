@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Imi.Project.Mobile.Pages.MorePage"
+             xmlns:bhv="clr-namespace:Imi.Project.Mobile.Behaviors">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="More" FontSize="50" TextColor="#2b2828" HorizontalOptions="Center" Margin="0,25,0,15"></Label>
+            <ListView ItemsSource="{Binding Pages}"
+                          HasUnevenRows="False" RowHeight="60" >
+                <ListView.Behaviors>
+                    <bhv:EventToCommandBehavior 
+                        EventName="ItemTapped"  
+                        Command="{Binding OpenPage}"
+                        EventArgsConverter="{StaticResource ItemTappedEventArgsConv}" />
+                </ListView.Behaviors>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Label Text="{Binding .}" TextColor="#2b2828" Grid.Row="0" Grid.Column="1" FontSize="16"
+                                           VerticalOptions="Center" HorizontalOptions="Center" />
+
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

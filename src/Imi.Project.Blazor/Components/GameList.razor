@@ -1,0 +1,31 @@
+﻿<table class="table mt-3 table-hover">
+    <thead>
+        <tr>
+            <th>Game Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (UserListItems != null)
+        {
+            @foreach (var item in UserListItems)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td><button class="btn btn-primary" @onclick="e => OnViewClick.InvokeAsync(item)">View</button></td>
+                </tr>
+            }
+        }
+
+
+    </tbody>
+</table>
+
+@code {
+
+    [Parameter]
+    public GameListItem[] UserListItems { get; set; }
+
+    [Parameter]
+    public EventCallback<GameListItem> OnViewClick { get; set; }
+}
